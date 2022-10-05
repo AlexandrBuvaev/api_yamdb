@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models import Avg
+
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 User = get_user_model()
 
@@ -14,22 +15,34 @@ class Review(models.Model):
     average_score - ср.значение рейтинга."""
 
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='reviewer'
-        )
+        User,
+        on_delete=models.CASCADE,
+        related_name='reviewer',
+        null=False,
+        blank=False
+    )
     score = models.DecimalField(
-        max_digits=10, decimal_places=0
-        )
-    text = models.TextField()
+        max_digits=2,
+        decimal_places=0,
+        validators=[
+            MaxValueValidator(10), MinValueValidator(1)],
+        null=False,
+        blank=False
+    )
+    text = models.TextField(
+        null=False,
+        blank=False
+    )
     pub_date = models.DateTimeField(
         'Дата публикации', auto_now_add=True
-        )
+    )
     title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name='review'
-        )
-
-    # def average_score(self):
-    #     average_score = Review.objects.filter(title=title).aggregate(Avg('score'))
-    #     return average_score
+        Title,
+        on_delete=models.CASCADE,
+        related_name='review',
+        null=False,
+        blank=False
+    )
 
     def __str__(self):
         return self.text
@@ -39,12 +52,22 @@ class Comment(models.Model):
     """Класс комментария. Связывает произведение, автора и текст."""
 
     author = models.ForeignKey(
-        User, on_delete=models.SET_NULL, related_name='commentator'
+        User,
+        on_delete=models.CASCADE,
+        related_name='commentator',
+        null=False,
+        blank=False
     )
     review = models.ForeignKey(
-        Review, on_delete=models.SET_NULL, related_name='comments'
+        Review,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        null=False,
+        blank=False
     )
     text = models.TextField()
     created = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True
+        'Дата добавления', auto_now_add=True, db_index=True,
+        null=False,
+        blank=False
     )
