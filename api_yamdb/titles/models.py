@@ -4,7 +4,7 @@ from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 
-MIN_VALUE_YEAR = 1000
+MIN_VALUE_YEAR = 1900
 
 
 def current_year():
@@ -47,8 +47,8 @@ class Categorie(models.Model):
     slug - Адрес
     """
 
-    name = models.CharField(max_length=200)
-    slug = models.SlugField(unique=True)
+    name = models.CharField(max_length=256)
+    slug = models.SlugField(unique=True, max_length=50)
 
     class Meta:
         verbose_name = 'Категория'
@@ -68,7 +68,7 @@ class Title(models.Model):
     year - Год выпуска
     description - Описание
     genre - Ссылка на модель Genre (Жанр) ManyToMany
-    category- Ссылка на модель Сategory (Категорию) 
+    category- Ссылка на модель Сategory (Категорию)
     """
 
     name = models.TextField(
