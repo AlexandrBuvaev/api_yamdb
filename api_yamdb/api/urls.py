@@ -6,8 +6,8 @@ from .views import GenreViewSet, CategorieViewSet, TitleViewSet
 app_name = 'api'
 
 v1_router = DefaultRouter()
-v1_router.register(r'genre', GenreViewSet, basename="genres")
-v1_router.register(r'categorie', CategorieViewSet, basename="categories")
+v1_router.register(r'genres', GenreViewSet, basename="genres")
+v1_router.register(r'categories', CategorieViewSet, basename="categories")
 v1_router.register(r'titles', TitleViewSet, basename="titles")
 
 urlpatterns = [
