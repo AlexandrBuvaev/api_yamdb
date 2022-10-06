@@ -24,6 +24,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field='username',
         default=serializers.CurrentUserDefault(),
     )
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         fields = '__all__'
@@ -41,7 +42,7 @@ class ReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Оценка произведений от 1 до 10.')
 
-    def get_rating(self):
+    def get_rating(self, obj):
         rating = Review.objects.filter(
-            title=self.title).aggregate(Avg('score'))
+            title=obj.title).aggregate(Avg('score'))
         return rating
