@@ -37,12 +37,14 @@ class ReviewSerializer(serializers.ModelSerializer):
         ]
 
     def validate_score(self):
+        """Проверка оценки произведения на вхождение в диапазон от 1 до 10. """
         score = self.context['request'].score
         if score < 1 and score > 10:
             raise serializers.ValidationError(
                 'Оценка произведений от 1 до 10.')
 
     def get_rating(self, obj):
+        """Вычисление среднего рейтинга произведения."""
         rating = Review.objects.filter(
             title=obj.title).aggregate(Avg('score'))
         return rating
