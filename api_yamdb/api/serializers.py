@@ -2,6 +2,7 @@ import datetime
 
 from rest_framework import serializers
 from titles.models import Genre, Categorie, Title
+from users.models import User
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -41,3 +42,17 @@ class TitleSerializer(serializers.ModelSerializer):
         if self.year > datetime.date.today().year:
             raise serializers.ValidationError("Not valid")
         return value
+
+
+class SignUpSerializator(serializers.ModelSerializer):
+    username = serializers.CharField(max_length=30, required=True)
+    email = serializers.EmailField(required=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'email')
+
+
+class GetTokenSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=30, required=True)
+    confirmation_code = serializers.CharField(max_length=60, required=True)
