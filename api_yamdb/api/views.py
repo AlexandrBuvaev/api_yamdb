@@ -1,5 +1,5 @@
 import uuid
-
+from rest_framework import viewsets, permissions
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from rest_framework import status
@@ -8,7 +8,41 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from users.models import User
 
+from api.serializers import GenreSerializer, CategorieSerializer
+from api.serializers import TitleSerializer
+from api.permissions import IsReadOnly
+from titles.models import Genre, Categorie, Title
 from .serializers import GetTokenSerializer, SignUpSerializator
+
+
+class TitleViewSet(viewsets.ReadOnlyModelViewSet):
+    """API-вюсет Title (Произведения)."""
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
+    permission_classes = [
+        permissions.IsAdminUser,
+        IsReadOnly
+    ]
+
+
+class GenreViewSet(viewsets.ReadOnlyModelViewSet):
+    """API-вюсет жанров."""
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = [
+        permissions.IsAdminUser,
+        IsReadOnly
+    ]
+
+
+class CategorieViewSet(viewsets.ReadOnlyModelViewSet):
+    """API-вюсет категорий."""
+    queryset = Categorie.objects.all()
+    serializer_class = CategorieSerializer
+    permission_classes = [
+        permissions.IsAdminUser,
+        IsReadOnly
+    ]
 
 
 @api_view(['POST'])
