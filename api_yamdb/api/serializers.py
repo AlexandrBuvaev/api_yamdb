@@ -1,6 +1,8 @@
 import datetime
 
+from django.db.models import Avg
 from rest_framework import serializers
+from review.models import Comment, Review
 from titles.models import Genre, Categorie, Title
 from users.models import User
 
@@ -42,6 +44,48 @@ class TitleSerializer(serializers.ModelSerializer):
         if self.year > datetime.date.today().year:
             raise serializers.ValidationError("Not valid")
         return value
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        read_only=True, slug_field='username'
+    )
+
+    class Meta:
+        fields = '__all__'
+        model = Comment
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username',
+        default=serializers.CurrentUserDefault(),
+    )
+    rating = serializers.SerializerMethodField()
+
+    class Meta:
+        fields = '__all__'
+        model = Review
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset=Review.objects.all(),
+                fields=['author', 'title'],
+                message='Пользователь уже писал рецензию на произведение!')
+        ]
+
+    def validate_score(self):
+        """Проверка оценки произведения на вхождение в диапазон от 1 до 10. """
+        score = self.context['request'].score
+        if score < 1 and score > 10:
+            raise serializers.ValidationError(
+                'Оценка произведений от 1 до 10.')
+
+    def get_rating(self, obj):
+        """Вычисление среднего рейтинга произведения."""
+        rating = Review.objects.filter(
+            title=obj.title).aggregate(Avg('score'))
+        return rating
 
 
 class SignUpSerializator(serializers.ModelSerializer):
