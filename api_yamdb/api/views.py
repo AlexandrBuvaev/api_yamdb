@@ -1,12 +1,13 @@
-from rest_framework import viewsets, filters, mixins, permissions
+from rest_framework import viewsets
 from rest_framework.pagination import LimitOffsetPagination
 
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 
-from review.models import Review, Comment
+from review.models import Review
 from .serializers import CommentSerializer, ReviewSerializer
-from .permissions import IsAuthorOrReadOnly, IsModerOrReadOnly, IsAdminOrReadOnly
+from .permissions import (
+    IsAuthorOrReadOnly, IsModerOrReadOnly, IsAdminOrReadOnly)
 
 User = get_user_model()
 
@@ -16,8 +17,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     serializer_class = ReviewSerializer
     queryset = Review.objects.all()
-    permission_classes = [IsAuthorOrReadOnly,
-                          IsAdminOrReadOnly, IsModerOrReadOnly]
+    permission_classes = [IsAuthorOrReadOnly
+                          | IsAdminOrReadOnly | IsModerOrReadOnly]
     pagination_class = LimitOffsetPagination
 
     def perform_create(self, serializer):
