@@ -2,6 +2,7 @@ import csv
 import os
 
 from django.core.management.base import BaseCommand
+from django.apps import apps
 
 
 class Command(BaseCommand):
@@ -12,7 +13,7 @@ class Command(BaseCommand):
         for file in self.data:
             with open(file, 'r') as csv_file:
                 name_file = file.split('.')[0]
-                model = name_file.title
+                model = apps.get_model(model_name=name_file.title)
                 reader = csv.reader(csv_file, delimiter=',', quotechar='|')
                 header = reader.next()
                 for row in reader:
