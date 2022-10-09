@@ -2,7 +2,7 @@ import datetime
 
 from django.db.models import Avg
 from rest_framework import serializers
-from review.models import Comment, Review
+from reviews.models import Comment, Review
 from titles.models import Genre, Categorie, Title
 from users.models import User
 

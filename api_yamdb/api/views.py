@@ -12,7 +12,7 @@ from api.serializers import GenreSerializer, CategorieSerializer
 from api.serializers import TitleSerializer
 from api.permissions import IsReadOnly, IsAuthorOrReadOnly, IsModerOrReadOnly, IsAdminOrReadOnly
 from titles.models import Genre, Categorie, Title
-from review.models import Review
+from reviews.models import Review
 from .serializers import GetTokenSerializer, SignUpSerializator, CommentSerializer, ReviewSerializer
 
 
@@ -53,7 +53,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     permission_classes = [IsAuthorOrReadOnly
                           | IsAdminOrReadOnly | IsModerOrReadOnly]
-    pagination_class = LimitOffsetPagination
+    # pagination_class = LimitOffsetPagination
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
