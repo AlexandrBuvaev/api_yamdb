@@ -1,5 +1,6 @@
 from rest_framework import permissions
 
+
 class IsAuthorOrReadOnly(permissions.BasePermission):
     """Проверка на разрешение для изменения. Изменять может только автор."""
 
@@ -7,6 +8,7 @@ class IsAuthorOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         return obj.author == request.user
+        # return request.user.role == 'MODERATOR'
 
 
 class IsModerOrReadOnly(permissions.BasePermission):
@@ -18,6 +20,13 @@ class IsModerOrReadOnly(permissions.BasePermission):
         return request.user.role == 'MODERATOR'
 
 
+class IsAdminOnly(permissions.BasePermission):
+    """Проверка на разрешение для изменения. Изменять может только админ."""
+
+    def has_permission(self, request, view, obj):
+        return request.user.role == 'ADMIN' or request.user.is_staff or request.user.is_superuser
+
+
 class IsAdminOrReadOnly(permissions.BasePermission):
     """Проверка на разрешение для изменения. Изменять может только админ."""
 
@@ -25,6 +34,7 @@ class IsAdminOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         return request.user.role == 'ADMIN'
+
 
 class IsReadOnly(permissions.BasePermission):
     """Класс пермишена чтения всем."""

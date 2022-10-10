@@ -10,10 +10,12 @@ from users.models import User
 
 from api.serializers import GenreSerializer, CategorieSerializer
 from api.serializers import TitleSerializer
-from api.permissions import IsReadOnly, IsAuthorOrReadOnly, IsModerOrReadOnly, IsAdminOrReadOnly
+from api.permissions import IsReadOnly, IsAuthorOrReadOnly
+from api.permissions import IsModerOrReadOnly, IsAdminOrReadOnly
 from titles.models import Genre, Categorie, Title
 from reviews.models import Review
-from .serializers import GetTokenSerializer, SignUpSerializator, CommentSerializer, ReviewSerializer
+from .serializers import GetTokenSerializer, SignUpSerializator
+from .serializers import CommentSerializer, ReviewSerializer, UserSerializer
 
 
 class TitleViewSet(viewsets.ReadOnlyModelViewSet):
@@ -21,8 +23,7 @@ class TitleViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     permission_classes = [
-        permissions.IsAdminUser,
-        IsReadOnly
+        IsAdminOrReadOnly
     ]
 
 
@@ -31,8 +32,7 @@ class GenreViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = [
-        permissions.IsAdminUser,
-        IsReadOnly
+        IsAdminOrReadOnly
     ]
 
 
@@ -41,8 +41,7 @@ class CategorieViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Categorie.objects.all()
     serializer_class = CategorieSerializer
     permission_classes = [
-        permissions.IsAdminUser,
-        IsReadOnly
+        IsAdminOrReadOnly
     ]
 
 
@@ -72,6 +71,11 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+
+class UserViewSet (viewsets.ModelViewSet):
+    serializer_class = UserSerializer
+    permission_classes = [IsAdminOrReadOnly]
 
 
 @api_view(['POST'])

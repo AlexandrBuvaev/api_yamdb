@@ -3,9 +3,9 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 USERS_ROLES = [
-    ('USER', 'Пользователь'),
-    ('MODERATOR', 'Модератор'),
-    ('ADMIN', 'Админ')
+    ('user', 'Пользователь'),
+    ('moderator', 'Модератор'),
+    ('admin', 'Админ')
 ]
 
 
@@ -15,11 +15,11 @@ class User(AbstractUser):
     confirmation_code = models.CharField(max_length=60, blank=True)
     role = models.CharField(
         max_length=25, choices=USERS_ROLES,
-        default='USER'
+        default='user'
     )
 
     def is_admin(self):
-        self.role == 'ADMIN' or self.is_staff
+        self.role == 'admin' or self.is_staff
 
     def is_moderator(self):
-        self.role == 'MODERATOR'
+        self.role == 'moderator'

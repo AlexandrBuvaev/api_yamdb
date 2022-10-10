@@ -1,11 +1,12 @@
-from django.contrib.auth import get_user_model
+# from django.contrib.auth import get_user_model
 from django.db import models
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 from titles.models import Title
+from users.models import User
 
-User = get_user_model()
+# User = get_user_model()
 
 
 class Review(models.Model):

@@ -100,3 +100,11 @@ class SignUpSerializator(serializers.ModelSerializer):
 class GetTokenSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=30, required=True)
     confirmation_code = serializers.CharField(max_length=60, required=True)
+
+
+class UserSerializer(serializers.ModelSerializer):
+    """Сериализатор User."""
+
+    class Meta:
+        model = User
+        fields = '__all__'
