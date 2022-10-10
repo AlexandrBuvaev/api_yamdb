@@ -7,11 +7,11 @@ from django.apps import apps
 
 class Command(BaseCommand):
     help = 'Creating model objects according the file path specified'
-    data = os.listdir(path='./static/data')
+    data = os.listdir(path='static/data')
 
-    def handle(self, *args):
+    def handle(self, *args, **options):
         for file in self.data:
-            with open(file, 'r') as csv_file:
+            with open(file) as csv_file:
                 name_file = file.split('.')[0]
                 model = apps.get_model(model_name=name_file.title)
                 reader = csv.reader(csv_file, delimiter=',', quotechar='|')

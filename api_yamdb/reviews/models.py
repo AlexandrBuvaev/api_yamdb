@@ -3,16 +3,17 @@ from django.db import models
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 
+from titles.models import Title
+
 User = get_user_model()
 
 
 class Review(models.Model):
     """Класс отзыва. Основные поля:
     author - автор отзыва,
-    score - рейтинг от 0-10,
+    score - рейтинг от 1-10,
     text - текст отзыва,
-    title - прозведение,
-    average_score - ср.значение рейтинга."""
+    title - прозведение"""
 
     author = models.ForeignKey(
         User,

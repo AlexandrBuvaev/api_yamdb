@@ -1,19 +1,26 @@
 import uuid
-from rest_framework import viewsets, permissions
+
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from rest_framework import status
+
+from rest_framework import status, viewsets, permissions
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from users.models import User
+from rest_framework.pagination import LimitOffsetPagination
+
 
 from api.serializers import GenreSerializer, CategorieSerializer
 from api.serializers import TitleSerializer
-from api.permissions import IsReadOnly, IsAuthorOrReadOnly, IsModerOrReadOnly, IsAdminOrReadOnly
+from api.permissions import (
+    IsReadOnly, IsAuthorOrReadOnly, IsModerOrReadOnly, IsAdminOrReadOnly)
+
+from users.models import User
 from titles.models import Genre, Categorie, Title
-from review.models import Review
-from .serializers import GetTokenSerializer, SignUpSerializator, CommentSerializer, ReviewSerializer
+from reviews.models import Review
+from .serializers import (
+    GetTokenSerializer, SignUpSerializator, CommentSerializer,
+    ReviewSerializer)
 
 
 class TitleViewSet(viewsets.ReadOnlyModelViewSet):
@@ -51,8 +58,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     serializer_class = ReviewSerializer
     queryset = Review.objects.all()
-    permission_classes = [IsAuthorOrReadOnly
-                          | IsAdminOrReadOnly | IsModerOrReadOnly]
+    permission_classes = [IsAuthorOrReadOnly,
+                          IsAdminOrReadOnly, IsModerOrReadOnly]
     pagination_class = LimitOffsetPagination
 
     def perform_create(self, serializer):
