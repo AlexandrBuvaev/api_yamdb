@@ -3,7 +3,7 @@ import datetime
 from django.db.models import Avg
 from rest_framework import serializers
 from reviews.models import Comment, Review
-from titles.models import Genre, Categorie, Title
+from titles.models import Categorie, Genre, Title
 from users.models import User
 
 
@@ -100,3 +100,20 @@ class SignUpSerializator(serializers.ModelSerializer):
 class GetTokenSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=30, required=True)
     confirmation_code = serializers.CharField(max_length=60, required=True)
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name',
+                  'last_name', 'bio', 'role')
+
+
+class UserNotAdminSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name',
+                  'last_name', 'bio')
+        read_only_fields = ('role',)
