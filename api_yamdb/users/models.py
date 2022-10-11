@@ -18,8 +18,14 @@ class User(AbstractUser):
         default='USER'
     )
 
+    @property
+    def is_user(self):
+        self.role == 'USER'
+
+    @property
     def is_admin(self):
         self.role == 'ADMIN' or self.is_staff
 
+    @property
     def is_moderator(self):
         self.role == 'MODERATOR'

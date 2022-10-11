@@ -1,19 +1,23 @@
 import uuid
-from rest_framework import viewsets, permissions
+
+from api.permissions import (IsAdmin, IsAdminOrReadOnly, IsAuthorOrReadOnly,
+                             IsModerOrReadOnly, IsReadOnly)
+from api.serializers import (CategorieSerializer, GenreSerializer,
+                             TitleSerializer)
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework import filters, status, viewsets
+from rest_framework.decorators import action, api_view
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import AccessToken
+from reviews.models import Review
+from titles.models import Categorie, Genre, Title
 from users.models import User
 
-from api.serializers import GenreSerializer, CategorieSerializer
-from api.serializers import TitleSerializer
-from api.permissions import IsReadOnly, IsAuthorOrReadOnly, IsModerOrReadOnly, IsAdminOrReadOnly
-from titles.models import Genre, Categorie, Title
-from reviews.models import Review
-from .serializers import GetTokenSerializer, SignUpSerializator, CommentSerializer, ReviewSerializer
+from .serializers import (CommentSerializer, GetTokenSerializer,
+                          ReviewSerializer, SignUpSerializator,
+                          UserNotAdminSerializer, UserSerializer)
 
 
 class TitleViewSet(viewsets.ReadOnlyModelViewSet):
@@ -21,7 +25,7 @@ class TitleViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     permission_classes = [
-        permissions.IsAdminUser,
+        IsAdminUser,
         IsReadOnly
     ]
 
@@ -31,7 +35,7 @@ class GenreViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = [
-        permissions.IsAdminUser,
+        IsAdminUser,
         IsReadOnly
     ]
 
@@ -41,7 +45,7 @@ class CategorieViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Categorie.objects.all()
     serializer_class = CategorieSerializer
     permission_classes = [
-        permissions.IsAdminUser,
+        IsAdminUser,
         IsReadOnly
     ]
 
@@ -89,7 +93,7 @@ def SignUpView(request):
         str(confirmation_code),
         'yamdb<admin@yamdb.ru>', [email]
     )
-    return Response('Код успешно отправлен', status=status.HTTP_200_OK)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
@@ -98,8 +102,41 @@ def GetTokenView(request):
     serializer.is_valid(raise_exception=True)
     username = serializer.data.get('username')
     confirmation_code = serializer.data.get('confirmation_code')
-    user = get_object_or_404(
-        User, username=username, confirmation_code=confirmation_code
+    user = get_object_or_404(User, username=username)
+    if user.confirmation_code == confirmation_code:
+        token = AccessToken.for_user(user)
+        return Response({'token': str(token)}, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    lookup_field = 'username'
+    permission_classes = [IsAdminUser | IsAdmin]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['user__username', ]
+
+    @action(
+        methods=['get', 'patch'],
+        permission_classes=[IsAuthenticated],
+        detail=False,
+        url_name='me',
+        url_path='me'
     )
-    token = RefreshToken.for_user(user)
-    return Response({'token': str(token)}, status=status.HTTP_200_OK)
+    def me(self, request, *args, **kwargs):
+        user = self.request.user
+        serializer = UserSerializer(user)
+        if self.request.method == 'PATCH':
+            if request.user.is_admin:
+                serializer = UserSerializer(user,
+                                            data=request.data,
+                                            partial=True)
+            else:
+                serializer = UserNotAdminSerializer(user,
+                                                    data=request.data,
+                                                    partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data)
