@@ -83,7 +83,7 @@ class Title(models.Model):
             MinValueValidator(MIN_VALUE_YEAR)
         ]
     )
-    description = models.SlugField(unique=True)
+    description = models.SlugField()
     genre = models.ManyToManyField(
         Genre,
         related_name='genres',

@@ -1,11 +1,9 @@
-from django.contrib.auth import get_user_model
 from django.db import models
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 from titles.models import Title
-
-User = get_user_model()
+from users.models import User
 
 
 class Review(models.Model):
@@ -66,8 +64,11 @@ class Comment(models.Model):
         null=False,
         blank=False
     )
-    text = models.TextField()
-    created = models.DateTimeField(
+    text = models.TextField(
+        null=False,
+        blank=False
+    )
+    pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True,
         null=False,
         blank=False
