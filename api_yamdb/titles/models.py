@@ -1,8 +1,7 @@
 import datetime
 
-from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
-
+from django.db import models
 
 MIN_VALUE_YEAR = 1900
 
@@ -28,7 +27,7 @@ class Genre(models.Model):
 
     name = models.CharField(max_length=200)
     slug = models.SlugField(
-        # primary_key=True,
+        primary_key=True,
         unique=True,
         null=False
     )
@@ -53,7 +52,7 @@ class Categorie(models.Model):
 
     name = models.CharField(max_length=256)
     slug = models.SlugField(
-        # primary_key=True,
+        primary_key=True,
         unique=True,
         null=False,
         max_length=50,

@@ -92,6 +92,11 @@ class SignUpSerializator(serializers.ModelSerializer):
     username = serializers.CharField(max_length=30, required=True)
     email = serializers.EmailField(required=True)
 
+    def validate(self, attrs):
+        if attrs['username'] == 'me':
+            raise serializers.ValidationError('Нельзя использовать логин "me"')
+        return attrs
+
     class Meta:
         model = User
         fields = ('username', 'email')
@@ -111,9 +116,9 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserNotAdminSerializer(serializers.ModelSerializer):
+    role = serializers.CharField(read_only=True)
 
     class Meta:
         model = User
         fields = ('username', 'email', 'first_name',
                   'last_name', 'bio')
-        read_only_fields = ('role',)
