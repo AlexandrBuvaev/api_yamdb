@@ -4,7 +4,7 @@ import sys
 try:
     con = lite.connect('db.sqlite3')
     cur = con.cursor()  
-    cur.executescript(f"INSERT INTO {TABLE_NAME} VALUES (?,?,?,?)")
+    cur.executescript(f"INSERT INTO {TABLE_NAME} VALUES (?,?,?,?)",VALUES)
     con.commit()
     
 except lite.Error, e:

@@ -84,7 +84,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     def get_rating(self, obj):
         """Вычисление среднего рейтинга произведения."""
         rating = Review.objects.filter(
-            title=obj.title).aggregate(Avg('score'))
+            title=obj.title).annotate(Avg('score'))
         return rating
 
 
