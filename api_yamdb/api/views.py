@@ -119,9 +119,9 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     lookup_field = 'username'
-    permission_classes = [IsAdmin | IsAdminUser]
+    permission_classes = [IsAuthenticated, IsAdmin]
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('user__username',)
+    search_fields = ('username',)
 
     @action(
         methods=['GET', 'PATCH'],
