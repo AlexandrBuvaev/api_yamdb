@@ -54,16 +54,27 @@ class CategorieViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    """Доступ к объектам модели Post."""
+    """Доступ к объектам модели Review."""
 
     serializer_class = ReviewSerializer
-    queryset = Review.objects.all()
     permission_classes = [IsAuthorOrReadOnly,
                           IsAdminOrReadOnly, IsModerOrReadOnly]
     pagination_class = LimitOffsetPagination
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    def get_permissions(self):
+        if self.action == 'create':
+            permission = permissions.IsAuthenticated
+            return [permission()]
+
+        return super().get_permissions()
+
+    def get_queryset(self):
+        """Получение списка отзывов к конкретному произведению."""
+        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        return title.review.all()
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -76,6 +87,13 @@ class CommentViewSet(viewsets.ModelViewSet):
         """Получение конкретного объекта модели."""
         review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
         return review.comments.all()
+
+    def get_permissions(self):
+        if self.action == 'create':
+            permission = permissions.IsAuthenticated
+            return [permission()]
+
+        return super().get_permissions()
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
