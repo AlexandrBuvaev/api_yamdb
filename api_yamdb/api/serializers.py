@@ -37,11 +37,11 @@ class TitleSerializer(serializers.ModelSerializer):
         model = Title
         fields = '__all__'
 
-    def validate_year(self, value):
+    def validate(self, value):
         """Валидация года."""
-        if value['not_valid']:
-            raise serializers.ValidationError("Not valid")
-        if self.year > datetime.date.today().year:
+        # if value['not_valid']:
+        #     raise serializers.ValidationError("Not valid")
+        if value['year'] > datetime.date.today().year:
             raise serializers.ValidationError("Not valid")
         return value
 

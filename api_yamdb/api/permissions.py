@@ -36,4 +36,18 @@ class IsAdminOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True
-        return request.user.role == 'ADMIN'
+        return request.user.is_admin
+
+
+class IsAdminOrReadOnlyGet(permissions.BasePermission):
+    """Проверка на разрешение для изменения. Изменять может только админ."""
+    # def has_permission(self, request, view):
+    #     return (
+    #         request.user.is_admin
+    #         or request.method in ["GET", "POST", "DELETE"]
+    #     )
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in ["GET", ]:
+            return True
+        return request.user.role == 'admin' and request.method in ["POST", "DELETE"]

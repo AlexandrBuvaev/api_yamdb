@@ -50,12 +50,12 @@ class Categorie(models.Model):
     slug - Адрес
     """
 
-    name = models.CharField(max_length=256)
+    name = models.CharField(null=False, max_length=256)
     slug = models.SlugField(
         primary_key=True,
         unique=True,
         null=False,
-        max_length=50,
+        max_length=50
     )
 
     class Meta:
@@ -81,6 +81,7 @@ class Title(models.Model):
 
     name = models.TextField(
         'Название',
+        null=False,
         help_text='Название произведения',
     )
     year = models.PositiveIntegerField(

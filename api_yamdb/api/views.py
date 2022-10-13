@@ -1,18 +1,20 @@
 import uuid
 
 from api.permissions import (IsAdmin, IsAdminOrReadOnly, IsAuthorOrReadOnly,
-                             IsModerOrReadOnly)
+                             IsModerOrReadOnly, IsAdminOrReadOnlyGet)
 from django.core.mail import send_mail
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action, api_view
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 from reviews.models import Review
 from titles.models import Categorie, Genre, Title
 from users.models import User
+
 
 from .serializers import (CategorieSerializer, CommentSerializer,
                           GenreSerializer, GetTokenSerializer,
@@ -21,31 +23,47 @@ from .serializers import (CategorieSerializer, CommentSerializer,
                           UserSerializer)
 
 
-class TitleViewSet(viewsets.ReadOnlyModelViewSet):
+class TitleViewSet(viewsets.ModelViewSet):
     """API-вюсет Title (Произведения)."""
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     permission_classes = [
-        IsAdminUser
+        IsAdminOrReadOnly,
     ]
 
 
-class GenreViewSet(viewsets.ReadOnlyModelViewSet):
+class GenreViewSet(viewsets.ModelViewSet):
     """API-вюсет жанров."""
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = [
-        IsAdminUser
+        IsAdminOrReadOnlyGet,
     ]
+    filter_backends = (
+        DjangoFilterBackend,
+        filters.SearchFilter,
+    )
+    search_fields = ('name', 'slug')
 
 
-class CategorieViewSet(viewsets.ReadOnlyModelViewSet):
+class CategorieViewSet(viewsets.ModelViewSet):
     """API-вюсет категорий."""
     queryset = Categorie.objects.all()
     serializer_class = CategorieSerializer
     permission_classes = [
-        IsAdminUser
+        IsAdminOrReadOnlyGet,
     ]
+    filter_backends = (
+        DjangoFilterBackend,
+        filters.SearchFilter,
+    )
+    search_fields = ('name',)
+
+    # def get_by_slug(self, slug):
+    #     return Response({
+    #         'status': 'Bad Request',
+    #         'message': 'Account could not be created with received data'
+    #     }, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
