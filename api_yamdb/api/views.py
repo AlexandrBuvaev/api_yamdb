@@ -1,13 +1,13 @@
 import uuid
 
-from api.permissions import (IsAdmin, IsAdminOrReadOnly, IsAuthorOrReadOnly,
-                             IsModerOrReadOnly)
+from api.permissions import (IsAdmin, IsAdminOrReadOnly,
+                             IsModerOrAuthorOrReadOnly)
 from django.core.mail import send_mail
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, status, viewsets
+from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action, api_view
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 from reviews.models import Review
@@ -21,31 +21,36 @@ from .serializers import (CategorieSerializer, CommentSerializer,
                           UserSerializer)
 
 
+class CustomViewSet(mixins.CreateModelMixin,
+                    mixins.DestroyModelMixin,
+                    mixins.ListModelMixin,
+                    viewsets.GenericViewSet):
+    pass
+
+
 class TitleViewSet(viewsets.ReadOnlyModelViewSet):
     """API-вюсет Title (Произведения)."""
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
-    permission_classes = [
-        IsAdminUser
-    ]
+    permission_classes = (IsAdminOrReadOnly,)
 
 
-class GenreViewSet(viewsets.ReadOnlyModelViewSet):
+class GenreViewSet(CustomViewSet):
     """API-вюсет жанров."""
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = [
-        IsAdminUser
-    ]
+    permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name', 'slug')
 
 
-class CategorieViewSet(viewsets.ReadOnlyModelViewSet):
+class CategorieViewSet(CustomViewSet):
     """API-вюсет категорий."""
     queryset = Categorie.objects.all()
     serializer_class = CategorieSerializer
-    permission_classes = [
-        IsAdminUser
-    ]
+    permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name', 'slug')
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -53,8 +58,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     serializer_class = ReviewSerializer
     queryset = Review.objects.all()
-    permission_classes = [IsAuthorOrReadOnly
-                          | IsAdminOrReadOnly | IsModerOrReadOnly]
+    permission_classes = [IsModerOrAuthorOrReadOnly]
     # pagination_class = LimitOffsetPagination
 
     def perform_create(self, serializer):
@@ -65,7 +69,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     """Доступ к объектам модели Comment."""
 
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [IsModerOrAuthorOrReadOnly]
 
     def get_queryset(self):
         """Получение конкретного объекта модели."""
@@ -78,6 +82,10 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 @api_view(['POST'])
 def SignUpView(request):
+    """
+    Функция для авторизации и получения кода
+    подтверждения "confirmation_code".
+    """
     serializer = SignUpSerializator(data=request.data)
     serializer.is_valid(raise_exception=True)
     email = serializer.data.get('email')
@@ -104,6 +112,7 @@ def SignUpView(request):
 
 @api_view(['POST'])
 def GetTokenView(request):
+    """Функция для получения токена."""
     serializer = GetTokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     username = serializer.data.get('username')
