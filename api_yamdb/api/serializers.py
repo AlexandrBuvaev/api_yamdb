@@ -68,7 +68,7 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
 
 
-class ReviewSerializer(serializers.ModelSerializer):
+class ReviewSerializer(serializers.ModelSerializer):1
     author = serializers.SlugRelatedField(
         read_only=True,
         slug_field='username',
@@ -96,7 +96,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     def get_rating(self, obj):
         """Вычисление среднего рейтинга произведения."""
         rating = Review.objects.filter(
-            title=obj.title).aggregate(Avg('score'))
+            title=obj.title).annotate(Avg('score'))
         return rating
 
 

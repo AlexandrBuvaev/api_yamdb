@@ -12,7 +12,7 @@ class IsAdmin(permissions.BasePermission):
 
 class IsModerOrAuthorOrReadOnly(permissions.BasePermission):
     """
-    Разрешает изменять комментарии, отзывы только автором
+    Разрешает изменять комментарии, отзывы только авторам
     или модератору.
     """
     def has_permission(self, request, view):
@@ -34,10 +34,9 @@ class IsModerOrAuthorOrReadOnly(permissions.BasePermission):
 
 class IsAdminOrReadOnly(permissions.BasePermission):
     """
-    Разрешает менять контент только админо в остальных
+    Разрешает менять контент только админу в остальных
     случаях доступ только для чтения.
     """
-
     def has_permission(self, request, view):
         return (
             request.method in permissions.SAFE_METHODS

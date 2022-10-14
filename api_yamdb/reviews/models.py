@@ -7,10 +7,9 @@ from users.models import User
 class Review(models.Model):
     """Класс отзыва. Основные поля:
     author - автор отзыва,
-    score - рейтинг от 0-10,
+    score - рейтинг от 1-10,
     text - текст отзыва,
-    title - прозведение,
-    average_score - ср.значение рейтинга."""
+    title - прозведение"""
 
     author = models.ForeignKey(
         User,
@@ -63,8 +62,11 @@ class Comment(models.Model):
         null=False,
         blank=False
     )
-    text = models.TextField()
-    created = models.DateTimeField(
+    text = models.TextField(
+        null=False,
+        blank=False
+    )
+    pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True,
         null=False,
         blank=False
