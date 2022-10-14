@@ -15,7 +15,7 @@ class CategorieAdmin(admin.ModelAdmin):
     """
 
     list_display = (
-        'pk',
+        # 'pk',
         'name',
         'slug',
     )
@@ -35,7 +35,7 @@ class GenresAdmin(admin.ModelAdmin):
     """
 
     list_display = (
-        'pk',
+        # 'pk',
         'name',
         'slug',
     )

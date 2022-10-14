@@ -3,7 +3,7 @@ import datetime
 from django.db.models import Avg
 from rest_framework import serializers
 from reviews.models import Comment, Review
-from titles.models import Genre, Categorie, Title
+from titles.models import Categorie, Genre, Title
 from users.models import User
 
 
@@ -26,7 +26,8 @@ class CategorieSerializer(serializers.ModelSerializer):
 class TitleSerializer(serializers.ModelSerializer):
     """Сериализатор Title (Произведения)."""
     genre = serializers.SlugRelatedField(
-        many=True, read_only=True, slug_field='name'
+        many=True, slug_field='name',
+        queryset=Genre.objects.all()
     )
     category = serializers.SlugRelatedField(
         slug_field='name',
@@ -39,11 +40,22 @@ class TitleSerializer(serializers.ModelSerializer):
 
     def validate_year(self, value):
         """Валидация года."""
-        if value['not_valid']:
-            raise serializers.ValidationError("Not valid")
-        if self.year > datetime.date.today().year:
+        if value > datetime.date.today().year:
             raise serializers.ValidationError("Not valid")
         return value
+
+
+class TitleViewSerializer(serializers.ModelSerializer):
+    catetegory = CategorieSerializer(many=False, required=True)
+    genre = GenreSerializer(many=True, required=False)
+    rating = serializers.IntegerField()
+
+    class Meta:
+        model = Title
+        fields = ('id', 'name', 'year', 'rating',
+                  'description', 'genre', 'category')
+        read_only_fields = ('id', 'name', 'year', 'rating',
+                            'description', 'genre', 'category')
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -92,6 +104,11 @@ class SignUpSerializator(serializers.ModelSerializer):
     username = serializers.CharField(max_length=30, required=True)
     email = serializers.EmailField(required=True)
 
+    def validate(self, attrs):
+        if attrs['username'] == 'me':
+            raise serializers.ValidationError('Нельзя использовать логин "me"')
+        return attrs
+
     class Meta:
         model = User
         fields = ('username', 'email')
@@ -100,3 +117,20 @@ class SignUpSerializator(serializers.ModelSerializer):
 class GetTokenSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=30, required=True)
     confirmation_code = serializers.CharField(max_length=60, required=True)
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name',
+                  'last_name', 'bio', 'role')
+
+
+class UserNotAdminSerializer(serializers.ModelSerializer):
+    role = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name',
+                  'last_name', 'bio', 'role')
