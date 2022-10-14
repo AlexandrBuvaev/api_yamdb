@@ -1,17 +1,27 @@
 import csv
 import os
 
+
 from django.core.management.base import BaseCommand
 from django.apps import apps
 
 
 class Command(BaseCommand):
     help = 'Creating model objects according the file path specified'
+<<<<<<< HEAD
     data = os.listdir(path='static/data')
     title_app_models = ['Genre', 'Titles', 'Categorie', 'Title_genre']
     review_app_models = ['Review', 'Comment']
     user_app_models = ['User', ]
 
+=======
+
+    data = os.listdir(path='static/data')
+    title_app_models = ['Genre', 'Titles', 'Categorie', 'Title_genre']
+    review_app_models = ['Review', 'Comment']
+    user_app_models = ['User', ]
+
+>>>>>>> 685de7723df4e0ee82884088addfdb42b450a03e
     def handle(self, *args, **options):
         for file in self.data:
             with open(f'static/data/{file}', encoding='utf-8') as csv_file:
