@@ -103,7 +103,7 @@ class Title(models.Model):
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
-        related_name='categories',
+        related_name='titles',
         verbose_name='Категория',
         help_text='Категория произведения',
     )

@@ -4,6 +4,7 @@ from api.permissions import (IsAdmin, IsAdminOrReadOnly,
                              IsModerOrAuthorOrReadOnly)
 from django.core.mail import send_mail
 from django.db import IntegrityError
+# from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action, api_view
@@ -17,8 +18,8 @@ from users.models import User
 from .serializers import (CategorieSerializer, CommentSerializer,
                           GenreSerializer, GetTokenSerializer,
                           ReviewSerializer, SignUpSerializator,
-                          TitleSerializer, UserNotAdminSerializer,
-                          UserSerializer)
+                          TitleSerializer, TitleViewSerializer,
+                          UserNotAdminSerializer, UserSerializer)
 
 
 class CustomViewSet(mixins.CreateModelMixin,
@@ -33,6 +34,11 @@ class TitleViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     permission_classes = (IsAdminOrReadOnly,)
+
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrive']:
+            return TitleViewSerializer
+        return TitleSerializer
 
 
 class GenreViewSet(CustomViewSet):

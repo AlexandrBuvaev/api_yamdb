@@ -26,7 +26,8 @@ class CategorieSerializer(serializers.ModelSerializer):
 class TitleSerializer(serializers.ModelSerializer):
     """Сериализатор Title (Произведения)."""
     genre = serializers.SlugRelatedField(
-        many=True, read_only=True, slug_field='name'
+        many=True, slug_field='name',
+        queryset=Genre.objects.all()
     )
     category = serializers.SlugRelatedField(
         slug_field='name',
@@ -39,11 +40,22 @@ class TitleSerializer(serializers.ModelSerializer):
 
     def validate_year(self, value):
         """Валидация года."""
-        # if value['not_valid']:
-        #   raise serializers.ValidationError("Not valid")
         if value > datetime.date.today().year:
             raise serializers.ValidationError("Not valid")
         return value
+
+
+class TitleViewSerializer(serializers.ModelSerializer):
+    catetegory = CategorieSerializer(many=False, required=True)
+    genre = GenreSerializer(many=True, required=False)
+    rating = serializers.IntegerField()
+
+    class Meta:
+        model = Title
+        fields = ('id', 'name', 'year', 'rating',
+                  'description', 'genre', 'category')
+        read_only_fields = ('id', 'name', 'year', 'rating',
+                            'description', 'genre', 'category')
 
 
 class CommentSerializer(serializers.ModelSerializer):
