@@ -3,7 +3,8 @@ import datetime
 from django.db.models import Avg
 from rest_framework import serializers
 from reviews.models import Comment, Review
-from titles.models import Genre, Categorie, Title
+
+from titles.models import Categorie, Genre, Title
 from users.models import User
 
 
@@ -92,6 +93,13 @@ class SignUpSerializator(serializers.ModelSerializer):
     username = serializers.CharField(max_length=30, required=True)
     email = serializers.EmailField(required=True)
 
+
+#     def validate(self, attrs):
+#         if attrs['username'] == 'me':
+#             raise serializers.ValidationError('Нельзя использовать логин "me"')
+#         return attrs
+
+
     class Meta:
         model = User
         fields = ('username', 'email')
@@ -100,3 +108,21 @@ class SignUpSerializator(serializers.ModelSerializer):
 class GetTokenSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=30, required=True)
     confirmation_code = serializers.CharField(max_length=60, required=True)
+
+
+# class UserSerializer(serializers.ModelSerializer):
+
+#     class Meta:
+#         model = User
+#         fields = ('username', 'email', 'first_name',
+#                   'last_name', 'bio', 'role')
+
+
+# class UserNotAdminSerializer(serializers.ModelSerializer):
+#     role = serializers.CharField(read_only=True)
+
+#     class Meta:
+#         model = User
+#         fields = ('username', 'email', 'first_name',
+#                   'last_name', 'bio', 'role')
+# >>>>>>> 46cdab5c008be2748ab20b0d58e4ed1c7eb18982
