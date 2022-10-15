@@ -85,13 +85,12 @@ class Title(models.Model):
     )
     year = models.PositiveIntegerField(
         'Год выпуска',
-        default=datetime.datetime.now().year,
         validators=[
             max_value_current_year,
             MinValueValidator(MIN_VALUE_YEAR)
         ]
     )
-    description = models.SlugField()
+    description = models.TextField()
     genre = models.ManyToManyField(
         Genre,
         related_name='titles',

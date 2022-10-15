@@ -26,11 +26,11 @@ class CategorieSerializer(serializers.ModelSerializer):
 class TitleSerializer(serializers.ModelSerializer):
     """Сериализатор Title (Произведения)."""
     genre = serializers.SlugRelatedField(
-        many=True, slug_field='name',
+        many=True, slug_field='slug',
         queryset=Genre.objects.all()
     )
     category = serializers.SlugRelatedField(
-        slug_field='name',
+        slug_field='slug',
         queryset=Categorie.objects.all()
     )
 
@@ -46,9 +46,9 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
 class TitleViewSerializer(serializers.ModelSerializer):
-    catetegory = CategorieSerializer(many=False, required=True)
-    genre = GenreSerializer(many=True, required=False)
-    rating = serializers.IntegerField()
+    category = CategorieSerializer(read_only=True)
+    genre = GenreSerializer(many=True, required=True)
+    rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Title

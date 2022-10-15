@@ -4,8 +4,9 @@ from api.permissions import (IsAdmin, IsAdminOrReadOnly,
                              IsModerOrAuthorOrReadOnly)
 from django.core.mail import send_mail
 from django.db import IntegrityError
-# from django.db.models import Avg
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action, api_view
 from rest_framework.permissions import IsAuthenticated
@@ -15,6 +16,7 @@ from reviews.models import Review
 from titles.models import Categorie, Genre, Title
 from users.models import User
 
+from .filters import TitleFilter
 from .serializers import (CategorieSerializer, CommentSerializer,
                           GenreSerializer, GetTokenSerializer,
                           ReviewSerializer, SignUpSerializator,
@@ -29,11 +31,13 @@ class CustomViewSet(mixins.CreateModelMixin,
     pass
 
 
-class TitleViewSet(viewsets.ReadOnlyModelViewSet):
+class TitleViewSet(viewsets.ModelViewSet):
     """API-вюсет Title (Произведения)."""
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(rating=Avg('review__score'))
     serializer_class = TitleSerializer
+    filter_backends = (DjangoFilterBackend,)
     permission_classes = (IsAdminOrReadOnly,)
+    filterset_class = TitleFilter
 
     def get_serializer_class(self):
         if self.action in ['list', 'retrive']:
@@ -48,6 +52,7 @@ class GenreViewSet(CustomViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name', 'slug')
+    lookup_field = 'slug'
 
 
 class CategorieViewSet(CustomViewSet):
@@ -57,6 +62,7 @@ class CategorieViewSet(CustomViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name', 'slug')
+    lookup_field = 'slug'
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -72,7 +78,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action == 'create':
-            permission = permissions.IsAuthenticated
+            permission = (IsAuthenticated,)
             return [permission()]
 
         return super().get_permissions()
@@ -96,7 +102,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action == 'create':
-            permission = permissions.IsAuthenticated
+            permission = [IsAuthenticated]
             return [permission()]
 
         return super().get_permissions()
