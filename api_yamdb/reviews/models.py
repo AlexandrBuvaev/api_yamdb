@@ -18,9 +18,7 @@ class Review(models.Model):
         null=False,
         blank=False
     )
-    score = models.DecimalField(
-        max_digits=2,
-        decimal_places=0,
+    score = models.PositiveSmallIntegerField(
         validators=[
             MaxValueValidator(10), MinValueValidator(1)],
         null=False,

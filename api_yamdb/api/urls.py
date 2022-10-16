@@ -12,14 +12,10 @@ v1_router.register(r'users', UserViewSet, basename="users")
 v1_router.register(r'genres', GenreViewSet, basename="genres")
 v1_router.register(r'categories', CategorieViewSet, basename="categories")
 v1_router.register(r'titles', TitleViewSet, basename="titles")
-v1_router.register(
-    r'titles/(?P<title_id>)/reviews/(?P<review_id>)/comments',
-    ReviewViewSet, basename='reviews'
-)
-v1_router.register(
-    r'titles/(?P<title_id>\d+)/reviews',
-    CommentViewSet, basename='comments'
-)
+v1_router.register(r'titles/(?P<title_id>\d+)/reviews',
+                   ReviewViewSet, basename='reviews')
+v1_router.register(r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)'
+                   r'/comments', CommentViewSet, basename='comments')
 
 urlpatterns = [
     path('v1/', include(v1_router.urls)),

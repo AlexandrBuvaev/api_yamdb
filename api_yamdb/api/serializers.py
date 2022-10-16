@@ -1,7 +1,9 @@
 import datetime
 
 from django.db.models import Avg
+
 from rest_framework import serializers
+
 from reviews.models import Comment, Review
 from titles.models import Categorie, Genre, Title
 from users.models import User
@@ -62,6 +64,10 @@ class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username'
     )
+    review = serializers.SlugRelatedField(
+        slug_field='text',
+        read_only=True
+    )
 
     class Meta:
         fields = '__all__'
@@ -75,6 +81,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         default=serializers.CurrentUserDefault(),
     )
     rating = serializers.SerializerMethodField()
+    title = serializers.SlugRelatedField(
+        slug_field='name',
+        read_only=True,
+    )
 
     class Meta:
         fields = '__all__'
@@ -86,12 +96,13 @@ class ReviewSerializer(serializers.ModelSerializer):
                 message='Пользователь уже писал рецензию на произведение!')
         ]
 
-    def validate_score(self):
+    def validate_score(self, data):
         """Проверка оценки произведения на вхождение в диапазон от 1 до 10. """
-        score = self.context['request'].score
-        if score < 1 and score > 10:
+        score = self.initial_data.get('score')
+        if int(score) > 0 and int(score) < 11:
             raise serializers.ValidationError(
                 'Оценка произведений от 1 до 10.')
+        return data
 
     def get_rating(self, obj):
         """Вычисление среднего рейтинга произведения."""

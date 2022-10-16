@@ -1,7 +1,7 @@
 import uuid
 
 from api.permissions import (IsAdmin, IsAdminOrReadOnly,
-                             IsModerOrAuthorOrReadOnly)
+                             IsAdminModerAuthorOrReadOnly)
 from django.core.mail import send_mail
 from django.db import IntegrityError
 from django.db.models import Avg
@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action, api_view
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 from reviews.models import Review
@@ -69,19 +69,17 @@ class ReviewViewSet(viewsets.ModelViewSet):
     """Доступ к объектам модели Review."""
 
     serializer_class = ReviewSerializer
-    queryset = Review.objects.all()
-    permission_classes = [IsModerOrAuthorOrReadOnly]
-    # pagination_class = LimitOffsetPagination
+    permission_classes = [IsAdminModerAuthorOrReadOnly]
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        title_id = self.kwargs.get('title_id')
+        title = get_object_or_404(Title, id=title_id)
+        serializer.save(author=self.request.user, title=title)
 
     def get_permissions(self):
-        if self.action == 'create':
-            permission = (IsAuthenticated,)
-            return [permission()]
-
-        return super().get_permissions()
+        if self.request.method == 'POST':
+            self.permission_classes = (IsAuthenticatedOrReadOnly,)
+        return super(ReviewViewSet, self).get_permissions()
 
     def get_queryset(self):
         """Получение списка отзывов к конкретному произведению."""
@@ -93,22 +91,23 @@ class CommentViewSet(viewsets.ModelViewSet):
     """Доступ к объектам модели Comment."""
 
     serializer_class = CommentSerializer
-    permission_classes = [IsModerOrAuthorOrReadOnly]
+    permission_classes = [IsAdminModerAuthorOrReadOnly]
 
     def get_queryset(self):
         """Получение конкретного объекта модели."""
         review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
         return review.comments.all()
 
-    def get_permissions(self):
-        if self.action == 'create':
-            permission = [IsAuthenticated]
-            return [permission()]
-
-        return super().get_permissions()
+    # def get_permissions(self):
+    #     if self.request.method == 'POST':
+    #         self.permission_classes = [IsAuthenticated]
+    #     return super(CommentViewSet, self).get_permissions()
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        title_id = self.kwargs.get('title_id')
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(Review, id=review_id, title=title_id)
+        serializer.save(author=self.request.user, review=review)
 
 
 @api_view(['POST'])
