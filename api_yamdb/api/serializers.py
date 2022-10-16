@@ -64,40 +64,38 @@ class CommentSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = '__all__'
+        fields = ('id', 'text', 'author', 'pub_date')
         model = Comment
 
 
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        read_only=True,
         slug_field='username',
         default=serializers.CurrentUserDefault(),
+        read_only=True
     )
-    rating = serializers.SerializerMethodField()
 
     class Meta:
         fields = '__all__'
         model = Review
-        validators = [
-            serializers.UniqueTogetherValidator(
-                queryset=Review.objects.all(),
-                fields=['author', 'title'],
-                message='Пользователь уже писал рецензию на произведение!')
-        ]
-
-    def validate_score(self):
-        """Проверка оценки произведения на вхождение в диапазон от 1 до 10. """
-        score = self.context['request'].score
-        if score < 1 and score > 10:
-            raise serializers.ValidationError(
-                'Оценка произведений от 1 до 10.')
-
-    def get_rating(self, obj):
-        """Вычисление среднего рейтинга произведения."""
-        rating = Review.objects.filter(
-            title=obj.title).annotate(Avg('score'))
-        return rating
+        read_only_fields = ('title',)
+    
+    def validate(self, data):
+        if self.context['request'].method == 'POST':
+            title_id = (
+                self.context['request'].parser_context['kwargs']['title_id']
+            )
+            user = self.context['request'].user
+            if Review.objects.filter(author=user, title_id=title_id).exists():
+                raise serializers.ValidationError(
+                    'Нельзя оставить отзыв на прозведение дважды.'
+                )
+        return data
+    
+    def validate_score(self, value):
+        if 0 >= value >=10:
+            raise serializers.ValidationError('Проверьте оценку.')
+        return value
 
 
 class SignUpSerializator(serializers.ModelSerializer):

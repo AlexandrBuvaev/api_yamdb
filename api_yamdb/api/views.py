@@ -12,7 +12,7 @@ from rest_framework.decorators import action, api_view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from reviews.models import Review
+from reviews.models import Comment, Review
 from titles.models import Categorie, Genre, Title
 from users.models import User
 
@@ -33,7 +33,7 @@ class CustomViewSet(mixins.CreateModelMixin,
 
 class TitleViewSet(viewsets.ModelViewSet):
     """API-вюсет Title (Произведения)."""
-    queryset = Title.objects.annotate(rating=Avg('review__score'))
+    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
     permission_classes = (IsAdminOrReadOnly,)
@@ -69,46 +69,37 @@ class ReviewViewSet(viewsets.ModelViewSet):
     """Доступ к объектам модели Review."""
 
     serializer_class = ReviewSerializer
-    queryset = Review.objects.all()
-    permission_classes = [IsModerOrAuthorOrReadOnly]
-    # pagination_class = LimitOffsetPagination
-
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-
-    def get_permissions(self):
-        if self.action == 'create':
-            permission = (IsAuthenticated,)
-            return [permission()]
-
-        return super().get_permissions()
+    permission_classes = (IsModerOrAuthorOrReadOnly,)
 
     def get_queryset(self):
         """Получение списка отзывов к конкретному произведению."""
-        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
-        return title.review.all()
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        queryset = title.reviews.all()
+        return queryset
+    
+    def perform_create(self, serializer):
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        serializer.save(author=self.request.user, title=title)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
     """Доступ к объектам модели Comment."""
 
     serializer_class = CommentSerializer
-    permission_classes = [IsModerOrAuthorOrReadOnly]
+    permission_classes = (IsModerOrAuthorOrReadOnly,)
 
     def get_queryset(self):
         """Получение конкретного объекта модели."""
-        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
-        return review.comments.all()
-
-    def get_permissions(self):
-        if self.action == 'create':
-            permission = [IsAuthenticated]
-            return [permission()]
-
-        return super().get_permissions()
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        review = title.reviews.get(id = self.kwargs.get('review_id'))
+        queryset = review.comments.all()
+        return queryset
+        
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        review = title.reviews.get(id=self.kwargs.get('review_id'))
+        serializer.save(author=self.request.user, review=review)
 
 
 @api_view(['POST'])
