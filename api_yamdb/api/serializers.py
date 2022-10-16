@@ -1,6 +1,5 @@
 import datetime
 
-from django.db.models import Avg
 from rest_framework import serializers
 from reviews.models import Comment, Review
 from titles.models import Categorie, Genre, Title
@@ -79,7 +78,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = '__all__'
         model = Review
         read_only_fields = ('title',)
-    
+
     def validate(self, data):
         if self.context['request'].method == 'POST':
             title_id = (
@@ -91,9 +90,9 @@ class ReviewSerializer(serializers.ModelSerializer):
                     'Нельзя оставить отзыв на прозведение дважды.'
                 )
         return data
-    
+
     def validate_score(self, value):
-        if 0 >= value >=10:
+        if 0 >= value >= 10:
             raise serializers.ValidationError('Проверьте оценку.')
         return value
 

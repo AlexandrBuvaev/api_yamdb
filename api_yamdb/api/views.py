@@ -12,7 +12,6 @@ from rest_framework.decorators import action, api_view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from reviews.models import Comment, Review
 from titles.models import Categorie, Genre, Title
 from users.models import User
 
@@ -76,7 +75,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
         queryset = title.reviews.all()
         return queryset
-    
+
     def perform_create(self, serializer):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
         serializer.save(author=self.request.user, title=title)
@@ -91,10 +90,9 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Получение конкретного объекта модели."""
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
-        review = title.reviews.get(id = self.kwargs.get('review_id'))
+        review = title.reviews.get(id=self.kwargs.get('review_id'))
         queryset = review.comments.all()
         return queryset
-        
 
     def perform_create(self, serializer):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))

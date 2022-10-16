@@ -37,8 +37,7 @@ class Review(models.Model):
                 name='unique_review'
             )
         ]
-    
-    
+
     def __str__(self):
         return self.text
 
@@ -63,6 +62,3 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.author
-
-   
-     
