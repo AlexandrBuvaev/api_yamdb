@@ -1,34 +1,12 @@
 import uuid
 
-<<<<<<< HEAD
-=======
+
 from api.permissions import (IsAdmin, IsAdminOrReadOnly, IsAuthorOrReadOnly,
                              IsModerOrReadOnly, IsAdminOrReadOnlyGet)
->>>>>>> 685de7723df4e0ee82884088addfdb42b450a03e
 from django.core.mail import send_mail
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
-<<<<<<< HEAD
 
-from rest_framework import status, viewsets, permissions
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.pagination import LimitOffsetPagination
-
-
-from api.serializers import GenreSerializer, CategorieSerializer
-from api.serializers import TitleSerializer
-from api.permissions import (
-    IsReadOnly, IsAuthorOrReadOnly, IsModerOrReadOnly, IsAdminOrReadOnly)
-
-from users.models import User
-from titles.models import Genre, Categorie, Title
-from reviews.models import Review
-from .serializers import (
-    GetTokenSerializer, SignUpSerializator, CommentSerializer,
-    ReviewSerializer)
-=======
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action, api_view
 from django_filters.rest_framework import DjangoFilterBackend
@@ -45,8 +23,6 @@ from .serializers import (CategorieSerializer, CommentSerializer,
                           ReviewSerializer, SignUpSerializator,
                           TitleSerializer, UserNotAdminSerializer,
                           UserSerializer)
->>>>>>> 685de7723df4e0ee82884088addfdb42b450a03e
-
 
 class TitleViewSet(viewsets.ModelViewSet):
     """API-вюсет Title (Произведения)."""
@@ -95,16 +71,11 @@ class ReviewViewSet(viewsets.ModelViewSet):
     """Доступ к объектам модели Review."""
 
     serializer_class = ReviewSerializer
-<<<<<<< HEAD
-    permission_classes = [IsAuthorOrReadOnly,
-                          IsAdminOrReadOnly, IsModerOrReadOnly]
-    pagination_class = LimitOffsetPagination
-=======
+
     queryset = Review.objects.all()
     permission_classes = [IsAuthorOrReadOnly
-                          | IsAdminOrReadOnly | IsModerOrReadOnly]
+                          , IsAdminOrReadOnly , IsModerOrReadOnly]
     # pagination_class = LimitOffsetPagination
->>>>>>> 685de7723df4e0ee82884088addfdb42b450a03e
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
