@@ -99,6 +99,12 @@ class SignUpSerializator(serializers.ModelSerializer):
     def validate(self, attrs):
         if attrs['username'] == 'me':
             raise serializers.ValidationError('Нельзя использовать логин "me"')
+        if User.objects.filter(username=attrs['username']).exists():
+            raise serializers.ValidationError(
+                'Пользователь с таким "username" уже существует.')
+        if User.objects.filter(email=attrs['email']).exists():
+            raise serializers.ValidationError(
+                'Пользователь с таким "email" уже существует.')
         return attrs
 
     class Meta:

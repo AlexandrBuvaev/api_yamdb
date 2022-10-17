@@ -3,7 +3,7 @@ import uuid
 from api.permissions import (IsAdmin, IsAdminOrReadOnly,
                              IsModerOrAuthorOrReadOnly)
 from django.core.mail import send_mail
-from django.db import IntegrityError
+# from django.db import IntegrityError
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -110,18 +110,10 @@ def SignUpView(request):
     serializer.is_valid(raise_exception=True)
     email = serializer.data.get('email')
     username = serializer.data.get('username')
-    try:
-        user, create = User.objects.get_or_create(
-            username=username, email=email
-        )
-    except IntegrityError:
-        return Response(
-            'Такой логин или email уже существуют',
-            status=status.HTTP_400_BAD_REQUEST
-        )
     confirmation_code = uuid.uuid4()
-    user.confirmation_code = confirmation_code
-    user.save()
+    user, create = User.objects.get_or_create(
+        username=username, email=email, confirmation_code=confirmation_code
+    )
     send_mail(
         'Confirmation code from yamdb',
         str(confirmation_code),
