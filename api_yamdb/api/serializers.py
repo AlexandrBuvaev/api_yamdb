@@ -91,11 +91,6 @@ class ReviewSerializer(serializers.ModelSerializer):
                 )
         return data
 
-    def validate_score(self, value):
-        if 0 >= value >= 10:
-            raise serializers.ValidationError('Проверьте оценку.')
-        return value
-
 
 class SignUpSerializator(serializers.ModelSerializer):
     username = serializers.CharField(max_length=30, required=True)

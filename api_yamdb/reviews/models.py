@@ -5,11 +5,13 @@ from users.models import User
 
 
 class Review(models.Model):
-    """Класс отзыва. Основные поля:
+    """
+    Класс отзыва. Основные поля:
     author - автор отзыва,
     score - рейтинг от 1-10,
     text - текст отзыва,
-    title - прозведение"""
+    title - прозведение.
+    """
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -23,7 +25,6 @@ class Review(models.Model):
     pub_date = models.DateTimeField(auto_now_add=True)
     text = models.TextField()
     score = models.IntegerField(
-        default=0,
         validators=[
             MaxValueValidator(10),
             MinValueValidator(1)
